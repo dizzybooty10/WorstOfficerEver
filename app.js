@@ -4,10 +4,10 @@ var bot = new Discord.Client();
 
 var prefix = "!!";//the text before commands. (no commands added at the moment, except !!ping).
 
-function test(){
-  var str = "!!test";
+function test(var msg){
 
-  if(str.substring(0,2) == '!!'){
+
+  if(msg.substring(0,prefix.length) == '!!'){
     return true;
   }
   return false;
@@ -20,7 +20,7 @@ bot.on('message', message => {
   var sender = message.author; //the person who sent the message
   var msg = message.content.toUpperCase(); //takes the message, and makes it all uppercase for easier management.
 
-if(test()){
+if(test(msg)){
   message.channel.send('TEST'); //sends PONG to the channel.
 
 }
