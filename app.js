@@ -6,7 +6,6 @@ var prefix = "!!";//the text before commands. (no commands added at the moment, 
 
 
 function hasPrefix(var msg){
-message.channel.send(msg.substring(0,prefix.length));
 if(msg.substring(0,prefix.length) == prefix){
   return true;
 }
@@ -23,7 +22,7 @@ bot.on('message', message => {
   //variables
   var sender = message.author; //the person who sent the message
   var msg = message.content.toUpperCase(); //takes the message, and makes it all uppercase for easier management.
-
+message.channel.send(msg.substring(0,prefix.length));
 
 if(hasPrefix(msg)){
   message.channel.send('!!'); //sends PONG to the channel.
