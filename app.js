@@ -41,3 +41,4 @@ bot.on('ready', () => {
 
 //login event.
 bot.login(process.env.BOT_TOKEN);
+//END OF CODE.
