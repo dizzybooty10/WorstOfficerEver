@@ -6,7 +6,7 @@ var prefix = "!!";//the text before commands. (no commands added at the moment, 
 
 
 function hasPrefix(var msg){
-
+message.channel.send(msg.substring(0,prefix.length));
 if(msg.substring(0,prefix.length) == prefix){
   return true;
 }
