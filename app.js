@@ -5,9 +5,8 @@ var commands = JSON.parse(fs.readFileSync('storage/commands.json', 'utf8'));
 var fs = require('fs');
 
 var blacklistedWords = ["gay", "nigga", "cunt"];
-var prefix = '!!' //the text before commands. (no commands added at the moment, except !!ping).
+var prefix = '!!'; //the text before commands. (no commands added at the moment, except !!ping).
 
-var commands = ["BLACKLIST","TEST"];
 function isInBlacklist(var msg) {
   if( blacklistedWords.includes(msg) ) {
     return true;
@@ -17,18 +16,12 @@ function isInBlacklist(var msg) {
   }
 }
 
-function isCommand(var msg) {
+function hasPrefix(var msg) {
 
   var wordArr = msg.split(" ");
 
   if(wordArr[0].substring(0,prefix.length) == prefix){
-    if(commands.includes(wordArr[0].substring(prefix.length))){
-      return true;
-
-    }
-    else{
-      return false;
-    }
+    return true;
   }
   else{
     return false;
@@ -42,8 +35,14 @@ bot.on('message', message => {
   var sender = message.author; //the person who sent the message
   var msg = message.content.toUpperCase(); //takes the message, and makes it all uppercase for easier management.
 
-  if(isCommand(var msg)){
-    message.channel.send('VALID CMD');
+  if(hasPrefix(var msg)){
+    message.channel.send('HAS !!');
+    msg = msg.substring(prefix.length);
+
+    message.channel.send("MSG:" + msg);
+
+
+
 
   }
 
