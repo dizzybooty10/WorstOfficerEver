@@ -1,8 +1,7 @@
 //Calling the package
 var Discord = require('discord.js');
 var bot = new Discord.Client();
-var commands = JSON.parse(fs.readFileSync('storage/commands.json', 'utf8'));
-var fs = require('fs');
+
 
 var blacklistedWords = ["gay", "nigga", "cunt"];
 var prefix = '!!'; //the text before commands. (no commands added at the moment, except !!ping).
@@ -35,8 +34,8 @@ bot.on('message', message => {
   var sender = message.author; //the person who sent the message
   var msg = message.content.toUpperCase(); //takes the message, and makes it all uppercase for easier management.
 
-  if(hasPrefix(var msg)){
-    message.channel.send('HAS !!');
+  if(hasPrefix(msg)){
+    message.channel.send('HAS: !!');
     msg = msg.substring(prefix.length);
 
     message.channel.send("MSG:" + msg);
