@@ -1,8 +1,0 @@
-{
-  "blacklist": {
-    "name": "blacklist",
-    "group": "Admin",
-    "desc": "Blacklists a word of choice.",
-    "Usage": "!!blacklist [word]"
-  }
-}
