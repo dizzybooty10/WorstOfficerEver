@@ -1,6 +1,39 @@
 //Calling the package
 var Discord = require('discord.js');
 var bot = new Discord.Client();
+var commands = JSON.parse(fs.readFileSync('storage/commands.json', 'utf8'));
+var fs = require('fs');
+
+var blacklistedWords = ["gay", "nigga", "cunt"];
+var prefix = '!!' //the text before commands. (no commands added at the moment, except !!ping).
+
+var commands = ["BLACKLIST","TEST"];
+function isInBlacklist(var msg) {
+  if( blacklistedWords.includes(msg) ) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+function isCommand(var msg) {
+
+  var wordArr = msg.split(" ");
+
+  if(wordArr[0].substring(0,prefix.length) == prefix){
+    if(commands.includes(wordArr[0].substring(prefix.length))){
+      return true;
+
+    }
+    else{
+      return false;
+    }
+  }
+  else{
+    return false;
+  }
+}
 
 //Listener Event: message recieved (this will run every time a message is recieved).
 bot.on('message', message => {
@@ -8,11 +41,28 @@ bot.on('message', message => {
   //variables
   var sender = message.author; //the person who sent the message
   var msg = message.content.toUpperCase(); //takes the message, and makes it all uppercase for easier management.
-  var prefix = '!!' //the text before commands. (no commands added at the moment, except !!ping).
+
+  if(isCommand(var msg)){
+    message.channel.send('VALID CMD');
+
+  }
 
   //First we need to make sure anything the bot says doesn't get censored, even tho the bot will never say a censored word.
   if (sender.id === '373939666615009311') { //checks if the id of the sender is the same id as the bot
     return; //cancels the rest of the listener event.
+  }
+
+  if (sender.id === '179896008975712256') {
+    if (msg.startsWith(prefix + 'blacklist')) {
+      var arr = message.content.split(' ');
+      var word = arr[1];
+      if (uglyWords instanceOf word) {
+        return;
+      }
+      else {
+        uglyWords[uglyWords.length] = word;
+      }
+    }
   }
 
   //ping / pong command for testing response time
