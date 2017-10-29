@@ -5,16 +5,6 @@ var bot = new Discord.Client();
 var prefix = "!!";//the text before commands. (no commands added at the moment, except !!ping).
 
 
-function hasPrefix(var msg){
-if(msg.substring(0,prefix.length) == prefix){
-  return true;
-}
-else{
-  return false;
-}
-
-}
-
 
 //Listener Event: message recieved (this will run every time a message is recieved).
 bot.on('message', message => {
