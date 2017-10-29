@@ -40,4 +40,4 @@ bot.on('ready', () => {
 });
 
 //login event.
-bot.login('MzczOTM5NjY2NjE1MDA5MzEx.DNaK3w.CZuXF9Crjj2w52RjQZEMdVFtpkI'); //dont let people see this code, people can control your bot, including the servers you bot has admin on.
+bot.login('MzczOTM5NjY2NjE1MDA5MzEx.DNaK3w.CZuXF9Crjj2w52RjQZEMdVFtpkI');
