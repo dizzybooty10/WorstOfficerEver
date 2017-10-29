@@ -34,17 +34,7 @@ bot.on('message', message => {
   var sender = message.author; //the person who sent the message
   var msg = message.content.toUpperCase(); //takes the message, and makes it all uppercase for easier management.
 
-  if(hasPrefix(msg)){
-    message.channel.send('HAS: !!');
-    msg = msg.substring(prefix.length);
-
-    message.channel.send("MSG:" + msg);
-
-
-
-
-  }
-
+  
   //First we need to make sure anything the bot says doesn't get censored, even tho the bot will never say a censored word.
   if (sender.id === '373939666615009311') { //checks if the id of the sender is the same id as the bot
     return; //cancels the rest of the listener event.
