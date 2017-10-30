@@ -55,6 +55,8 @@ bot.on('message', message => {
     return; //cancels the rest of the listener event.
   }
 
+
+
   if(hasPrefix(msg)){ // if the message is a command
 
     msg = msg.substring(prefix.length); // removes the prefix from the message
@@ -62,10 +64,14 @@ bot.on('message', message => {
     var command = getCommand(msg); // identifies the command
     var msg = getMessage(msg); // identifies the message (the text after the command)
 
+
+
     if(command == "HI"){
       message.channel.send('HELLO'); //sends PONG to the channel.
 
     }
+
+
 
     //ping / pong command for testing response time
     if (command === 'PING') { //checks if the command sent by the sender is ping
@@ -74,8 +80,6 @@ bot.on('message', message => {
 
   }
   else{ // No command is written
-
-  }
 
     return; // No command is written
   }
