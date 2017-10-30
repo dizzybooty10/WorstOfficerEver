@@ -35,9 +35,14 @@ function getMessage(msg){
 
 function blacklist(msg){
 
-    fs.createWriteStream("blacklistedWords.txt").write(msg+"\n");
+  fs.writeFile("blacklistedWords.txt", "Hey there!", function(err) {
+    if(err) {
+      message.channel.send(err);
+    }
 
-  
+    message.channel.send("The file was saved!");
+});
+
 }
 
 //Listener Event: message recieved (this will run every time a message is recieved).
@@ -55,7 +60,7 @@ bot.on('message', message => {
     var msg = getMessage(msg); // identifies the message (the text after the command)
 
 if(command == "BLACKLIST"){
-
+message.channel.send('U WANT TO BLACKLIST: ' + msg);
 blacklist(msg);
 
 }
