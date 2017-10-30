@@ -33,16 +33,6 @@ function getMessage(msg){
 
 }
 
-function blacklist(msg){
-
-  // add a line to a lyric file, using appendFile
-  fs.appendFile('blacklistedWords.txt', '\n'+msg, (err) => {
-      if (err) throw err;
-
-  });
-
-
-}
 
 //Listener Event: message recieved (this will run every time a message is recieved).
 bot.on('message', message => {
@@ -58,18 +48,8 @@ bot.on('message', message => {
     var command = getCommand(msg); // identifies the command
     var msg = getMessage(msg); // identifies the message (the text after the command)
 
-    if(command == "BLACKLIST"){
-    message.channel.send('U WANT TO BLACKLIST: ' + msg);
-    blacklist(msg);
 
-    }
-    message.channel.send('COMMAND: ' + command); //sends PONG to the channel.
-    message.channel.send('MESSAGE: ' + msg); //sends PONG to the channel.
 
-    for(var i = 0 ; i < blacklistedWords.length-1 ; i++){
-      message.channel.send('BAN: ' + blacklistedWords[i]); //sends PONG to the channel.
-
-    }
 
     //ping / pong command for testing response time
     if (msg === 'PING') { //checks if the command sent by the sender is ping
@@ -77,8 +57,17 @@ bot.on('message', message => {
     }
 
   }
-  else{
+  else{ // No command is written
 
+
+    for(var i = 0 ; i < blacklistedWords.length - 1 ; i++){
+      if(msg.contains(blacklistedWords[i])) {
+
+        message.delete()
+        message.author.send('INFO: Use of extreme words in chat is not tolerated. Your message included either an offensive word or a word that is not allowed to be discussed about. \nWARNING: Anyone who avoids a censored word by for example adding a . or _ between letters will be BANNED from the discord server.');
+        return;
+      }
+    }
 
     return; // No command is written
   }
