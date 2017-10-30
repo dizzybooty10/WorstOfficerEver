@@ -35,13 +35,7 @@ function getMessage(msg){
 
 function blacklist(msg){
 
-  fs.writeFile("blacklistedWords.txt", "Hey there!", function(err) {
-    if(err) {
-      message.channel.send(err);
-    }
 
-    message.channel.send("The file was saved!");
-});
 
 }
 
@@ -59,11 +53,11 @@ bot.on('message', message => {
     var command = getCommand(msg); // identifies the command
     var msg = getMessage(msg); // identifies the message (the text after the command)
 
-if(command == "BLACKLIST"){
-message.channel.send('U WANT TO BLACKLIST: ' + msg);
-blacklist(msg);
+    if(command == "BLACKLIST"){
+    message.channel.send('U WANT TO BLACKLIST: ' + msg);
+    blacklist(msg);
 
-}
+    }
     message.channel.send('COMMAND: ' + command); //sends PONG to the channel.
     message.channel.send('MESSAGE: ' + msg); //sends PONG to the channel.
 
