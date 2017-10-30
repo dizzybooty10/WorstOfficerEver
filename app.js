@@ -5,7 +5,7 @@ var bot = new Discord.Client();
 var fs = require('fs');
 var blacklistedWords = fs.readFileSync('blacklistedWords.txt').toString().split("\n");
 
-var prefix = "!!";//the text before commands. (no commands added at the moment, except !!ping).
+var prefix = "-";//the text before commands. (no commands added at the moment, except !!ping).
 
 function hasPrefix(msg){
   if(msg.substring(0,prefix.length) == prefix){
@@ -58,6 +58,12 @@ bot.on('message', message => {
 
 
 
+    if(command == "HI"){
+      message.channel.send('HELLO'); //sends PONG to the channel.
+
+    }
+
+
 
     //ping / pong command for testing response time
     if (command === 'PING') { //checks if the command sent by the sender is ping
@@ -66,7 +72,6 @@ bot.on('message', message => {
 
   }
   else{ // No command is written
-    message.channel.send('TEST FOR BANNED WORDS:'); //sends PONG to the channel.
 
     for(var i = 0 ; i < blacklistedWords.length - 1 ; i++){
       message.channel.send(blacklistedWords[i]); //sends PONG to the channel.
