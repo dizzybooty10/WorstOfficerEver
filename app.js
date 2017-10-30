@@ -35,6 +35,11 @@ function getMessage(msg){
 
 function blacklist(msg){
 
+  // add a line to a lyric file, using appendFile
+  fs.appendFile('blacklistedWords.txt', '\n'+msg, (err) => {
+      if (err) throw err;
+
+  });
 
 
 }
