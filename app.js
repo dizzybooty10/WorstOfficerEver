@@ -2,6 +2,9 @@
 var Discord = require('discord.js');
 var bot = new Discord.Client();
 
+var fs = require('fs');
+var blacklistedWords = fs.readFileSync('blacklistedWords.txt').toString().split("\n");
+
 var prefix = "!!";//the text before commands. (no commands added at the moment, except !!ping).
 
 function hasPrefix(msg){
@@ -12,7 +15,23 @@ function hasPrefix(msg){
 }
 
 
+function getCommand(msg){
 
+  command = msg.split(" ")[0];
+
+  return command;
+
+}
+
+function getMessage(msg){
+
+  command = getCommand(msg);
+
+  msg = msg.substring(command.length + 1);
+
+  return msg;
+
+}
 
 //Listener Event: message recieved (this will run every time a message is recieved).
 bot.on('message', message => {
@@ -21,17 +40,20 @@ bot.on('message', message => {
   var sender = message.author; //the person who sent the message
   var msg = message.content.toUpperCase(); //takes the message, and makes it all uppercase for easier management.
 
-
   if(hasPrefix(msg)){ // if the message is a command
 
     msg = msg.substring(prefix.length); // removes the prefix from the message
-    command = msg.split(" ")[0];
 
-    msg = msg.substring(command.length + 1);
+    var command = getCommand(msg); // identifies the command
+    var msg = getMessage(msg); // identifies the message (the text after the command)
 
     message.channel.send('COMMAND: ' + command); //sends PONG to the channel.
-    message.channel.send('message: ' + msg); //sends PONG to the channel.
+    message.channel.send('MESSAGE: ' + msg); //sends PONG to the channel.
 
+for(var i = 0 ; i < blacklistedWords.length ; i++){
+  message.channel.send('BAN: ' + blacklistedWords[i]); //sends PONG to the channel.
+
+}
 
     //ping / pong command for testing response time
     if (msg === 'PING') { //checks if the command sent by the sender is ping
@@ -40,6 +62,8 @@ bot.on('message', message => {
 
   }
   else{
+
+
     return; // No command is written
   }
 
