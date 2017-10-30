@@ -5,15 +5,14 @@ var bot = new Discord.Client();
 var prefix = "!!";//the text before commands. (no commands added at the moment, except !!ping).
 
 function hasPrefix(msg){
-
-
-  if(msg.substring(0,prefix.length) == '!!'){
+  if(msg.substring(0,prefix.length) == prefix){
     return true;
   }
-
-
   return false;
 }
+
+
+
 
 //Listener Event: message recieved (this will run every time a message is recieved).
 bot.on('message', message => {
@@ -22,15 +21,24 @@ bot.on('message', message => {
   var sender = message.author; //the person who sent the message
   var msg = message.content.toUpperCase(); //takes the message, and makes it all uppercase for easier management.
 
-  if(hasPrefix(msg)){
-    msg = msg.substring(prefix.length);
-    message.channel.send(msg); //sends TEST to the channel.
+
+  if(hasPrefix(msg)){ // if the message is a command
+
+    msg = msg.substring(prefix.length); // removes the prefix from the message
+    command = msg.split(" ")[0];
+
+    message.channel.send('COMMAND: ' + command);
+
+    //ping / pong command for testing response time
+    if (msg === 'PING') { //checks if the command sent by the sender is ping
+      message.channel.send('PONG'); //sends PONG to the channel.
+    }
 
   }
-  //ping / pong command for testing response time
-  if (msg === prefix + 'PING') { //checks if the message sent by the sender is !!ping.
-    message.channel.send('PONG'); //sends PONG to the channel.
+  else{
+    return; // No command is written
   }
+
 
 });
 
