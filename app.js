@@ -64,7 +64,7 @@ bot.on('message', message => {
       message.channel.send(blacklistedWords[i]); //sends PONG to the channel.
       if(msg.contains(blacklistedWords[i])) {
 
-        message.delete()
+        message.delete();
         message.author.send('INFO: Use of extreme words in chat is not tolerated. Your message included either an offensive word or a word that is not allowed to be discussed about. \nWARNING: Anyone who avoids a censored word by for example adding a . or _ between letters will be BANNED from the discord server.');
         return;
       }
