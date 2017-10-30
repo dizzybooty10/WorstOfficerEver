@@ -67,7 +67,10 @@ bot.on('message', message => {
 
     for(var i = 0 ; i < blacklistedWords.length - 1 ; i++){
       message.channel.send(blacklistedWords[i]); //sends PONG to the channel.
-    
+      if(msg.contains("HEJ")){
+        message.channel.send("HEJDÅ"); //sends PONG to the channel.
+        return;
+      }
     }
 
     return; // No command is written
