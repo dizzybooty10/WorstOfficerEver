@@ -33,6 +33,17 @@ function getMessage(msg){
 
 }
 
+function blacklist(msg){
+
+    //fs.createWriteStream("blacklistedWords.txt").write(msg+"\n");
+
+    var stream = fs.createWriteStream("blacklistedWords.txt");
+    stream.once('open', function(fd) {
+      stream.write(msg+"\n");
+      stream.end();
+    });
+}
+
 //Listener Event: message recieved (this will run every time a message is recieved).
 bot.on('message', message => {
 
@@ -47,13 +58,18 @@ bot.on('message', message => {
     var command = getCommand(msg); // identifies the command
     var msg = getMessage(msg); // identifies the message (the text after the command)
 
+if(command == "BLACKLIST"){
+
+blacklist(msg);
+
+}
     message.channel.send('COMMAND: ' + command); //sends PONG to the channel.
     message.channel.send('MESSAGE: ' + msg); //sends PONG to the channel.
 
-for(var i = 0 ; i < blacklistedWords.length ; i++){
-  message.channel.send('BAN: ' + blacklistedWords[i]); //sends PONG to the channel.
+    for(var i = 0 ; i < blacklistedWords.length-1 ; i++){
+      message.channel.send('BAN: ' + blacklistedWords[i]); //sends PONG to the channel.
 
-}
+    }
 
     //ping / pong command for testing response time
     if (msg === 'PING') { //checks if the command sent by the sender is ping
