@@ -27,7 +27,11 @@ bot.on('message', message => {
     msg = msg.substring(prefix.length); // removes the prefix from the message
     command = msg.split(" ")[0];
 
-    message.channel.send('COMMAND: ' + command);
+    msg = msg.substring(command.length + 1);
+
+    message.channel.send('COMMAND: ' + command); //sends PONG to the channel.
+    message.channel.send('message: ' + msg); //sends PONG to the channel.
+
 
     //ping / pong command for testing response time
     if (msg === 'PING') { //checks if the command sent by the sender is ping
