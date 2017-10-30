@@ -5,7 +5,7 @@ var bot = new Discord.Client();
 var fs = require('fs');
 var blacklistedWords = fs.readFileSync('blacklistedWords.txt').toString().split("\n");
 
-var prefix = "-";//the text before commands. (no commands added at the moment, except !!ping).
+var prefix = "!!";//the text before commands. (no commands added at the moment, except !!ping).
 
 function hasPrefix(msg){
   if(msg.substring(0,prefix.length) == prefix){
@@ -13,8 +13,6 @@ function hasPrefix(msg){
   }
   return false;
 }
-
-
 function getCommand(msg){
 
   command = msg.split(" ")[0];
@@ -22,7 +20,6 @@ function getCommand(msg){
   return command;
 
 }
-
 function getMessage(msg){
 
   command = getCommand(msg);
@@ -74,8 +71,10 @@ bot.on('message', message => {
   else{ // No command is written
 
     for(var i = 0 ; i < blacklistedWords.length - 1 ; i++){
-
-      if(msg.includes(blacklistedWords[i])) {
+      if(msg.includes('RACCOON') || msg.includes('RACOON') || msg.includes('BARRACOON') || msg.includes('TYCOON') || msg.includes('COCOON')) {
+        return;
+      }
+      else if(msg.includes(blacklistedWords[i])) {
 
         message.delete();
         message.author.send('INFO: Use of extreme words in chat is not tolerated. Your message included either an offensive word or a word that is not allowed to be discussed about. \nWARNING: Anyone who avoids a censored word by for example adding a . or _ between letters will be BANNED from the discord server.');
