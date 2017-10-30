@@ -74,7 +74,7 @@ bot.on('message', message => {
   else{ // No command is written
 
     for(var i = 0 ; i < blacklistedWords.length - 1 ; i++){
-      message.channel.send(blacklistedWords[i]); //sends PONG to the channel.
+
       if(msg.includes(blacklistedWords[i])) {
 
         message.delete();
