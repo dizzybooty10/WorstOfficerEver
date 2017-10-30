@@ -35,13 +35,9 @@ function getMessage(msg){
 
 function blacklist(msg){
 
-    //fs.createWriteStream("blacklistedWords.txt").write(msg+"\n");
+    fs.createWriteStream("blacklistedWords.txt").write(msg+"\n");
 
-    var stream = fs.createWriteStream("blacklistedWords.txt");
-    stream.once('open', function(fd) {
-      stream.write(msg+"\n");
-      stream.end();
-    });
+  
 }
 
 //Listener Event: message recieved (this will run every time a message is recieved).
