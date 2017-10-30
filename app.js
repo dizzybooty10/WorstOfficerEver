@@ -53,14 +53,10 @@ bot.on('message', message => {
     var command = getCommand(msg); // identifies the command
     var msg = getMessage(msg); // identifies the message (the text after the command)
 
-
-
     if(command == "HI"){
       message.channel.send('HELLO'); //sends PONG to the channel.
 
     }
-
-
 
     //ping / pong command for testing response time
     if (command === 'PING') { //checks if the command sent by the sender is ping
