@@ -38,13 +38,22 @@ bot.on('message', message => {
   var sender = message.author; //the person who sent the message
   var msg = message.content.toUpperCase(); //takes the message, and makes it all uppercase for easier management.
 
+  for(var i = 0 ; i < blacklistedWords.length - 1 ; i++){
+    if(msg.includes('RACCOON') || msg.includes('RACOON') || msg.includes('BARRACOON') || msg.includes('TYCOON') || msg.includes('COCOON')) {
+      return;
+    }
+    else if(msg.includes(blacklistedWords[i])) {
+
+      message.delete();
+      message.author.send('INFO: Use of extreme words in chat is not tolerated. Your message included either an offensive word or a word that is not allowed to be discussed about. \nWARNING: Anyone who avoids a censored word by for example adding a . or _ between letters will be BANNED from the discord server.');
+      return;
+    }
+  }
 
   //First we need to make sure anything the bot says doesn't get censored, even tho the bot will never say a censored word.
   if (sender.id === '373939666615009311') { //checks if the id of the sender is the same id as the bot
     return; //cancels the rest of the listener event.
   }
-
-
 
   if(hasPrefix(msg)){ // if the message is a command
 
@@ -63,32 +72,10 @@ bot.on('message', message => {
       message.channel.send('PONG'); //sends PONG to the channel.
     }
 
-    for(var i = 0 ; i < blacklistedWords.length - 1 ; i++){
-      if(command.includes('RACCOON') || command.includes('RACOON') || command.includes('BARRACOON') || command.includes('TYCOON') || command.includes('COCOON')) {
-        return;
-      }
-      else if(command.includes(blacklistedWords[i])) {
-
-        message.delete();
-        message.author.send('INFO: Use of extreme words in chat is not tolerated. Your message included either an offensive word or a word that is not allowed to be discussed about. \nWARNING: Anyone who avoids a censored word by for example adding a . or _ between letters will be BANNED from the discord server.');
-        return;
-      }
-    }
-
   }
   else{ // No command is written
 
-    for(var i = 0 ; i < blacklistedWords.length - 1 ; i++){
-      if(msg.includes('RACCOON') || msg.includes('RACOON') || msg.includes('BARRACOON') || msg.includes('TYCOON') || msg.includes('COCOON')) {
-        return;
-      }
-      else if(msg.includes(blacklistedWords[i])) {
-
-        message.delete();
-        message.author.send('INFO: Use of extreme words in chat is not tolerated. Your message included either an offensive word or a word that is not allowed to be discussed about. \nWARNING: Anyone who avoids a censored word by for example adding a . or _ between letters will be BANNED from the discord server.');
-        return;
-      }
-    }
+  }
 
     return; // No command is written
   }
