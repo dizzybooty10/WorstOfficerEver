@@ -52,15 +52,16 @@ bot.on('message', message => {
 
 
     //ping / pong command for testing response time
-    if (msg === 'PING') { //checks if the command sent by the sender is ping
+    if (command === 'PING') { //checks if the command sent by the sender is ping
       message.channel.send('PONG'); //sends PONG to the channel.
     }
 
   }
   else{ // No command is written
-
+    message.channel.send('TEST FOR BANNED WORDS:'); //sends PONG to the channel.
 
     for(var i = 0 ; i < blacklistedWords.length - 1 ; i++){
+      message.channel.send(blacklistedWords[i]); //sends PONG to the channel.
       if(msg.contains(blacklistedWords[i])) {
 
         message.delete()
