@@ -1,18 +1,18 @@
 # WorstOfficerEver
 
-This repository now includes a standalone interactive 3D visualization of the Pythagorean theorem:
+This repository includes a standalone interactive Pythagoras theorem visualizer:
 
-- `pythagoras-3d.html` — browser-based Three.js scene with:
+- `pythagoras-3d.html` — browser-based canvas scene with:
   - Adjustable triangle legs (`a`, `b`)
-  - Adjustable prism height and opacity
-  - Optional wireframe mode, labels, and auto-rotation
+  - Adjustable prism depth and view scale
+  - Live shape redraw when sliders move
   - Live numeric verification of `a² + b² = c²`
 
 ## Run locally
 
 Open `pythagoras-3d.html` in a modern browser.
 
-If your browser blocks module imports from `file://`, run a quick local static server, e.g.:
+Optional local static server:
 
 ```bash
 python3 -m http.server 8080

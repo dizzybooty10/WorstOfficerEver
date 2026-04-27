@@ -3,436 +3,296 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Pythagoras Theorem Visualizer</title>
+  <title>Pythagoras Visualizer (Interactive)</title>
   <style>
     :root {
       color-scheme: dark;
       --bg: #0d1117;
-      --panel: rgba(22, 27, 34, 0.92);
+      --panel: #151b23;
       --text: #e6edf3;
-      --muted: #9aa4b2;
-      --accent: #4ea1ff;
-      --accent-2: #67d3b2;
-      --danger: #ff6b6b;
+      --muted: #97a6b9;
+      --a: #4ea1ff;
+      --b: #67d3b2;
+      --c: #f8c14a;
+      --tri: #ff7eb6;
     }
-
-    html,
-    body {
+    html, body {
       margin: 0;
       height: 100%;
-      overflow: hidden;
       background: var(--bg);
       color: var(--text);
-      font-family: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
     }
-
-    #container {
-      position: fixed;
-      inset: 0;
+    #layout {
+      display: grid;
+      grid-template-columns: min(360px, 42vw) 1fr;
+      height: 100%;
     }
-
-    .panel {
-      position: fixed;
-      top: 16px;
-      left: 16px;
-      width: min(340px, calc(100vw - 32px));
-      max-height: calc(100vh - 32px);
-      overflow-y: auto;
-      background: var(--panel);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
+    #controls {
       padding: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-      z-index: 2;
+      border-right: 1px solid #2a3240;
+      background: var(--panel);
+      overflow: auto;
     }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: 1.1rem;
-      line-height: 1.35;
-    }
-
-    .subtitle {
-      margin: 0 0 12px;
-      color: var(--muted);
-      font-size: 0.86rem;
-      line-height: 1.4;
-    }
-
-    .row {
-      margin-bottom: 10px;
-    }
-
-    .row label {
+    h1 { margin: 0 0 10px; font-size: 1.1rem; }
+    p { margin: 0 0 12px; color: var(--muted); font-size: 0.88rem; }
+    .row { margin-bottom: 12px; }
+    label {
       display: flex;
       justify-content: space-between;
-      font-size: 0.84rem;
+      font-size: 0.86rem;
       margin-bottom: 4px;
     }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-    }
-
-    input[type="checkbox"] {
-      accent-color: var(--accent-2);
-      transform: translateY(1px);
-    }
-
-    .stat {
-      margin-top: 8px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    input[type="range"] { width: 100%; }
+    .stats {
+      margin-top: 10px;
+      border-top: 1px solid #2a3240;
       padding-top: 10px;
-      font-size: 0.84rem;
+      font-size: 0.85rem;
       line-height: 1.6;
     }
-
     .formula {
-      margin: 8px 0;
-      padding: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #0f1723;
+      border: 1px solid #2a3240;
       border-radius: 8px;
-      background: rgba(78, 161, 255, 0.12);
-      border: 1px solid rgba(78, 161, 255, 0.3);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.82rem;
+      padding: 8px;
+      margin-top: 6px;
       overflow-x: auto;
     }
-
-    .legend {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-top: 8px;
-      font-size: 0.78rem;
+    .legend { margin-top: 8px; color: var(--muted); font-size: 0.8rem; }
+    .chip { display: inline-flex; align-items: center; margin-right: 8px; }
+    .sw { width: 11px; height: 11px; margin-right: 5px; border-radius: 2px; display: inline-block; }
+    #viewWrap {
+      position: relative;
+      min-width: 0;
+    }
+    #view {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    #hint {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      font-size: 12px;
       color: var(--muted);
-    }
-
-    .swatch {
-      width: 12px;
-      height: 12px;
-      border-radius: 2px;
-      margin-right: 6px;
-      display: inline-block;
-      transform: translateY(2px);
-    }
-
-    .legend-item {
-      white-space: nowrap;
-    }
-
-    .footer {
-      margin-top: 8px;
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    .warn {
-      color: var(--danger);
+      background: rgba(13,17,23,.65);
+      border: 1px solid #2a3240;
+      border-radius: 6px;
+      padding: 6px 8px;
     }
   </style>
 </head>
 <body>
-  <div id="container"></div>
+  <div id="layout">
+    <aside id="controls">
+      <h1>Interactive Pythagoras Visualizer</h1>
+      <p>Move sliders to update the geometry immediately. The scene draws the right triangle plus square prisms on sides <b>a</b>, <b>b</b>, and <b>c</b>.</p>
 
-  <aside class="panel">
-    <h1>3D Pythagoras Theorem Visualizer</h1>
-    <p class="subtitle">Adjust the right triangle and see how <strong>a² + b² = c²</strong> appears in 3D with square prisms.</p>
-
-    <div class="row">
-      <label for="sideA">Side a <span id="sideAValue">5.0</span></label>
-      <input id="sideA" type="range" min="1" max="14" step="0.1" value="5" />
-    </div>
-
-    <div class="row">
-      <label for="sideB">Side b <span id="sideBValue">12.0</span></label>
-      <input id="sideB" type="range" min="1" max="14" step="0.1" value="12" />
-    </div>
-
-    <div class="row">
-      <label for="prismHeight">Prism height <span id="heightValue">1.8</span></label>
-      <input id="prismHeight" type="range" min="0.2" max="4" step="0.1" value="1.8" />
-    </div>
-
-    <div class="row">
-      <label for="opacity">Prism opacity <span id="opacityValue">0.65</span></label>
-      <input id="opacity" type="range" min="0.15" max="1" step="0.05" value="0.65" />
-    </div>
-
-    <div class="row">
-      <label><span>Wireframe</span> <input id="wireframe" type="checkbox" /></label>
-      <label><span>Show face labels</span> <input id="labels" type="checkbox" checked /></label>
-      <label><span>Auto rotate</span> <input id="autoRotate" type="checkbox" checked /></label>
-    </div>
-
-    <div class="stat">
-      <div><strong>Computed values</strong></div>
-      <div id="triangleStats"></div>
-      <div class="formula" id="formulaLine"></div>
-      <div id="equivalenceMsg"></div>
-      <div class="legend">
-        <div class="legend-item"><span class="swatch" style="background:#4ea1ff"></span>Square on a</div>
-        <div class="legend-item"><span class="swatch" style="background:#67d3b2"></span>Square on b</div>
-        <div class="legend-item"><span class="swatch" style="background:#f8c14a"></span>Square on c</div>
-        <div class="legend-item"><span class="swatch" style="background:#ff7eb6"></span>Right triangle</div>
+      <div class="row">
+        <label for="a">Side a <span id="aVal">6.0</span></label>
+        <input id="a" type="range" min="1" max="16" step="0.1" value="6" />
       </div>
-    </div>
 
-    <div class="footer">Tip: drag with mouse to orbit, scroll to zoom.</div>
-  </aside>
+      <div class="row">
+        <label for="b">Side b <span id="bVal">8.0</span></label>
+        <input id="b" type="range" min="1" max="16" step="0.1" value="8" />
+      </div>
 
-  <script type="module">
-    import * as THREE from 'https://unpkg.com/three@0.165.0/build/three.module.js';
-    import { OrbitControls } from 'https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js';
+      <div class="row">
+        <label for="h">Prism depth <span id="hVal">2.0</span></label>
+        <input id="h" type="range" min="0.5" max="6" step="0.1" value="2" />
+      </div>
 
-    const container = document.getElementById('container');
+      <div class="row">
+        <label for="scale">View scale <span id="scaleVal">28</span></label>
+        <input id="scale" type="range" min="12" max="50" step="1" value="28" />
+      </div>
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0d1117);
+      <div class="stats">
+        <div id="vals"></div>
+        <div class="formula" id="formula"></div>
+        <div id="check"></div>
+        <div class="legend">
+          <span class="chip"><span class="sw" style="background:var(--a)"></span>a² prism</span>
+          <span class="chip"><span class="sw" style="background:var(--b)"></span>b² prism</span>
+          <span class="chip"><span class="sw" style="background:var(--c)"></span>c² prism</span>
+          <span class="chip"><span class="sw" style="background:var(--tri)"></span>triangle</span>
+        </div>
+      </div>
+    </aside>
 
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
-    camera.position.set(14, 12, 14);
+    <section id="viewWrap">
+      <canvas id="view"></canvas>
+      <div id="hint">Live-updating scene from slider values</div>
+    </section>
+  </div>
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    container.appendChild(renderer.domElement);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.8;
-    controls.target.set(4, 0, 4);
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-    const light = new THREE.DirectionalLight(0xffffff, 0.95);
-    light.position.set(12, 18, 8);
-    scene.add(light);
-
-    const grid = new THREE.GridHelper(40, 40, 0x1f6feb, 0x2f3946);
-    grid.position.y = -0.01;
-    scene.add(grid);
-
-    const axes = new THREE.AxesHelper(7);
-    scene.add(axes);
-
-    const root = new THREE.Group();
-    scene.add(root);
-
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
-    const triangleLine = new THREE.LineLoop(new THREE.BufferGeometry(), lineMaterial);
-    root.add(triangleLine);
-
-    const triangleMesh = new THREE.Mesh(
-      new THREE.BufferGeometry(),
-      new THREE.MeshStandardMaterial({
-        color: 0xff7eb6,
-        opacity: 0.35,
-        transparent: true,
-        side: THREE.DoubleSide
-      })
-    );
-    root.add(triangleMesh);
-
-    function createPrism(color) {
-      const material = new THREE.MeshStandardMaterial({
-        color,
-        transparent: true,
-        opacity: 0.65,
-        side: THREE.DoubleSide,
-        metalness: 0,
-        roughness: 0.3
-      });
-
-      const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
-      root.add(mesh);
-
-      const edge = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1)),
-        new THREE.LineBasicMaterial({ color: 0xffffff, opacity: 0.7, transparent: true })
-      );
-      root.add(edge);
-
-      return { mesh, edge };
-    }
-
-    const prismA = createPrism(0x4ea1ff);
-    const prismB = createPrism(0x67d3b2);
-    const prismC = createPrism(0xf8c14a);
-
-    function createLabel(text, color) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 256;
-      canvas.height = 128;
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = 'rgba(13,17,23,0.55)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 6;
-      ctx.strokeRect(6, 6, canvas.width - 12, canvas.height - 12);
-      ctx.fillStyle = '#e6edf3';
-      ctx.font = 'bold 50px Segoe UI, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.colorSpace = THREE.SRGBColorSpace;
-      const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
-      const sprite = new THREE.Sprite(spriteMaterial);
-      sprite.scale.set(3.2, 1.6, 1);
-      root.add(sprite);
-      return sprite;
-    }
-
-    const labelA = createLabel('a²', '#4ea1ff');
-    const labelB = createLabel('b²', '#67d3b2');
-    const labelC = createLabel('c²', '#f8c14a');
+  <script>
+    const canvas = document.getElementById('view');
+    const ctx = canvas.getContext('2d');
 
     const state = {
-      a: 5,
-      b: 12,
-      h: 1.8,
-      opacity: 0.65,
-      wireframe: false,
-      labels: true,
-      autoRotate: true
+      a: 6,
+      b: 8,
+      h: 2,
+      scale: 28
     };
 
     const ui = {
-      sideA: document.getElementById('sideA'),
-      sideB: document.getElementById('sideB'),
-      prismHeight: document.getElementById('prismHeight'),
-      opacity: document.getElementById('opacity'),
-      wireframe: document.getElementById('wireframe'),
-      labels: document.getElementById('labels'),
-      autoRotate: document.getElementById('autoRotate'),
-      sideAValue: document.getElementById('sideAValue'),
-      sideBValue: document.getElementById('sideBValue'),
-      heightValue: document.getElementById('heightValue'),
-      opacityValue: document.getElementById('opacityValue'),
-      triangleStats: document.getElementById('triangleStats'),
-      formulaLine: document.getElementById('formulaLine'),
-      equivalenceMsg: document.getElementById('equivalenceMsg')
+      a: document.getElementById('a'),
+      b: document.getElementById('b'),
+      h: document.getElementById('h'),
+      scale: document.getElementById('scale'),
+      aVal: document.getElementById('aVal'),
+      bVal: document.getElementById('bVal'),
+      hVal: document.getElementById('hVal'),
+      scaleVal: document.getElementById('scaleVal'),
+      vals: document.getElementById('vals'),
+      formula: document.getElementById('formula'),
+      check: document.getElementById('check')
     };
 
-    function rotateAroundY(vec, angle) {
-      return vec.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle);
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw();
     }
 
-    function updatePrism(prism, center, sideLength, angle) {
-      prism.mesh.geometry.dispose();
-      prism.edge.geometry.dispose();
-
-      prism.mesh.geometry = new THREE.BoxGeometry(sideLength, state.h, sideLength);
-      prism.edge.geometry = new THREE.EdgesGeometry(prism.mesh.geometry);
-      prism.mesh.position.copy(center).setY(state.h / 2);
-      prism.edge.position.copy(prism.mesh.position);
-      prism.mesh.rotation.y = angle;
-      prism.edge.rotation.y = angle;
-
-      prism.mesh.material.opacity = state.opacity;
-      prism.mesh.material.wireframe = state.wireframe;
+    function worldToScreen(x, y) {
+      const cx = canvas.clientWidth * 0.56;
+      const cy = canvas.clientHeight * 0.68;
+      return [cx + x * state.scale, cy - y * state.scale];
     }
 
-    function updateScene() {
-      const A = new THREE.Vector3(0, 0, 0);
-      const B = new THREE.Vector3(state.a, 0, 0);
-      const C = new THREE.Vector3(0, 0, state.b);
-      const c = Math.hypot(state.a, state.b);
+    function drawPolyline(points, stroke, fill = null, lineWidth = 2) {
+      if (points.length < 2) return;
+      ctx.beginPath();
+      ctx.moveTo(points[0][0], points[0][1]);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+      ctx.closePath();
+      if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fill();
+      }
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = lineWidth;
+      ctx.stroke();
+    }
 
-      const trianglePts = [A, B, C];
-      triangleLine.geometry.dispose();
-      triangleLine.geometry = new THREE.BufferGeometry().setFromPoints(trianglePts);
+    function drawPrism(basePoints, depth, color) {
+      const offset = [depth * state.scale * 0.55, -depth * state.scale * 0.55];
+      const top = basePoints.map(([x, y]) => [x + offset[0], y + offset[1]]);
 
-      triangleMesh.geometry.dispose();
-      const triGeom = new THREE.BufferGeometry().setFromPoints(trianglePts);
-      triGeom.setIndex([0, 1, 2]);
-      triGeom.computeVertexNormals();
-      triangleMesh.geometry = triGeom;
+      for (let i = 0; i < basePoints.length; i++) {
+        const j = (i + 1) % basePoints.length;
+        drawPolyline([basePoints[i], basePoints[j], top[j], top[i]], '#0b0f14', color + '66', 1.3);
+      }
+      drawPolyline(basePoints, '#0b0f14', color + '99', 1.6);
+      drawPolyline(top, '#0b0f14', color + '44', 1.2);
+    }
 
-      const midAB = A.clone().add(B).multiplyScalar(0.5);
-      const centerA = midAB.clone().add(new THREE.Vector3(0, 0, -state.a / 2));
-      updatePrism(prismA, centerA, state.a, 0);
+    function draw() {
+      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 
-      const midAC = A.clone().add(C).multiplyScalar(0.5);
-      const centerB = midAC.clone().add(new THREE.Vector3(-state.b / 2, 0, 0));
-      updatePrism(prismB, centerB, state.b, 0);
+      const a = state.a;
+      const b = state.b;
+      const c = Math.hypot(a, b);
 
-      const D = C.clone().sub(B);
-      const normal2D = new THREE.Vector3(D.z, 0, -D.x).normalize();
-      const centerC = B.clone().add(C).multiplyScalar(0.5).addScaledVector(normal2D, c / 2);
-      const angleC = Math.atan2(D.z, D.x);
-      updatePrism(prismC, centerC, c, angleC);
+      const A = worldToScreen(0, 0);
+      const B = worldToScreen(a, 0);
+      const C = worldToScreen(0, b);
 
-      labelA.visible = state.labels;
-      labelB.visible = state.labels;
-      labelC.visible = state.labels;
+      // square on AB (side a)
+      const sqA = [
+        A,
+        B,
+        worldToScreen(a, -a),
+        worldToScreen(0, -a)
+      ];
 
-      labelA.position.copy(centerA).add(new THREE.Vector3(0, state.h + 0.8, 0));
-      labelB.position.copy(centerB).add(new THREE.Vector3(0, state.h + 0.8, 0));
-      labelC.position.copy(centerC).add(new THREE.Vector3(0, state.h + 0.8, 0));
+      // square on AC (side b)
+      const sqB = [
+        A,
+        C,
+        worldToScreen(-b, b),
+        worldToScreen(-b, 0)
+      ];
 
-      controls.target.set(state.a * 0.35, 0, state.b * 0.35);
+      // square on BC (side c), outward normal
+      const BC = [C[0] - B[0], C[1] - B[1]];
+      const len = Math.hypot(BC[0], BC[1]);
+      const nx = BC[1] / len;
+      const ny = -BC[0] / len;
+      const p1 = B;
+      const p2 = C;
+      const p3 = [C[0] + nx * (c * state.scale), C[1] + ny * (c * state.scale)];
+      const p4 = [B[0] + nx * (c * state.scale), B[1] + ny * (c * state.scale)];
+      const sqC = [p1, p2, p3, p4];
 
-      const a2 = state.a * state.a;
-      const b2 = state.b * state.b;
+      drawPrism(sqA, state.h, '#4ea1ff');
+      drawPrism(sqB, state.h, '#67d3b2');
+      drawPrism(sqC, state.h, '#f8c14a');
+
+      drawPolyline([A, B, C], '#ffd4e8', 'rgba(255,126,182,0.35)', 2.3);
+
+      // right-angle marker near A
+      const m = 0.55;
+      const r1 = worldToScreen(m, 0);
+      const r2 = worldToScreen(m, m);
+      const r3 = worldToScreen(0, m);
+      ctx.beginPath();
+      ctx.moveTo(r1[0], r1[1]);
+      ctx.lineTo(r2[0], r2[1]);
+      ctx.lineTo(r3[0], r3[1]);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+
+      // labels
+      ctx.fillStyle = '#e6edf3';
+      ctx.font = '600 14px Segoe UI, Arial';
+      ctx.fillText('a', (A[0] + B[0]) / 2 - 6, (A[1] + B[1]) / 2 + 18);
+      ctx.fillText('b', (A[0] + C[0]) / 2 - 18, (A[1] + C[1]) / 2);
+      ctx.fillText('c', (B[0] + C[0]) / 2 + 8, (B[1] + C[1]) / 2 - 6);
+
+      const a2 = a * a;
+      const b2 = b * b;
       const c2 = c * c;
+      const err = Math.abs(a2 + b2 - c2);
 
-      ui.sideAValue.textContent = state.a.toFixed(1);
-      ui.sideBValue.textContent = state.b.toFixed(1);
-      ui.heightValue.textContent = state.h.toFixed(1);
-      ui.opacityValue.textContent = state.opacity.toFixed(2);
-
-      ui.triangleStats.textContent = `a = ${state.a.toFixed(2)}, b = ${state.b.toFixed(2)}, c = ${c.toFixed(4)}`;
-      ui.formulaLine.textContent = `${a2.toFixed(4)} + ${b2.toFixed(4)} = ${(a2 + b2).toFixed(4)}  |  c² = ${c2.toFixed(4)}`;
-
-      const error = Math.abs(a2 + b2 - c2);
-      ui.equivalenceMsg.textContent = error < 1e-9
-        ? '✓ Verified numerically: a² + b² equals c².'
-        : `Numerical drift: ${error.toExponential(2)}`;
-      ui.equivalenceMsg.className = error < 1e-9 ? '' : 'warn';
+      ui.vals.textContent = `a = ${a.toFixed(2)}, b = ${b.toFixed(2)}, c = ${c.toFixed(4)}, prism depth = ${state.h.toFixed(2)}`;
+      ui.formula.textContent = `${a2.toFixed(4)} + ${b2.toFixed(4)} = ${(a2 + b2).toFixed(4)}  |  c² = ${c2.toFixed(4)}`;
+      ui.check.textContent = err < 1e-9 ? '✓ a² + b² = c² verified.' : `Numeric error: ${err.toExponential(2)}`;
     }
 
-    function bindInput(el, key, parseFn = Number) {
-      el.addEventListener('input', () => {
-        state[key] = parseFn(el.type === 'checkbox' ? el.checked : el.value);
-        if (key === 'autoRotate') {
-          controls.autoRotate = state.autoRotate;
-        }
-        updateScene();
-      });
+    function onInput() {
+      state.a = Number(ui.a.value);
+      state.b = Number(ui.b.value);
+      state.h = Number(ui.h.value);
+      state.scale = Number(ui.scale.value);
+
+      ui.aVal.textContent = state.a.toFixed(1);
+      ui.bVal.textContent = state.b.toFixed(1);
+      ui.hVal.textContent = state.h.toFixed(1);
+      ui.scaleVal.textContent = String(state.scale);
+
+      draw();
     }
 
-    bindInput(ui.sideA, 'a');
-    bindInput(ui.sideB, 'b');
-    bindInput(ui.prismHeight, 'h');
-    bindInput(ui.opacity, 'opacity');
-    bindInput(ui.wireframe, 'wireframe', Boolean);
-    bindInput(ui.labels, 'labels', Boolean);
-    bindInput(ui.autoRotate, 'autoRotate', Boolean);
+    ui.a.addEventListener('input', onInput);
+    ui.b.addEventListener('input', onInput);
+    ui.h.addEventListener('input', onInput);
+    ui.scale.addEventListener('input', onInput);
 
-    updateScene();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      labelA.quaternion.copy(camera.quaternion);
-      labelB.quaternion.copy(camera.quaternion);
-      labelC.quaternion.copy(camera.quaternion);
-      renderer.render(scene, camera);
-    }
-
-    animate();
+    window.addEventListener('resize', resize);
+    onInput();
+    resize();
   </script>
 </body>
 </html>
