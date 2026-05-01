@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pythagoras Visualizer (Interactive)</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --panel: #151b23;
+      --text: #e6edf3;
+      --muted: #97a6b9;
+      --a: #4ea1ff;
+      --b: #67d3b2;
+      --c: #f8c14a;
+      --tri: #ff7eb6;
+    }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    #layout {
+      display: grid;
+      grid-template-columns: min(360px, 42vw) 1fr;
+      height: 100%;
+    }
+    #controls {
+      padding: 14px;
+      border-right: 1px solid #2a3240;
+      background: var(--panel);
+      overflow: auto;
+    }
+    h1 { margin: 0 0 10px; font-size: 1.1rem; }
+    p { margin: 0 0 12px; color: var(--muted); font-size: 0.88rem; }
+    .row { margin-bottom: 12px; }
+    label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.86rem;
+      margin-bottom: 4px;
+    }
+    input[type="range"] { width: 100%; }
+    .stats {
+      margin-top: 10px;
+      border-top: 1px solid #2a3240;
+      padding-top: 10px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    .formula {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: #0f1723;
+      border: 1px solid #2a3240;
+      border-radius: 8px;
+      padding: 8px;
+      margin-top: 6px;
+      overflow-x: auto;
+    }
+    .legend { margin-top: 8px; color: var(--muted); font-size: 0.8rem; }
+    .chip { display: inline-flex; align-items: center; margin-right: 8px; }
+    .sw { width: 11px; height: 11px; margin-right: 5px; border-radius: 2px; display: inline-block; }
+    #viewWrap {
+      position: relative;
+      min-width: 0;
+    }
+    #view {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    #hint {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      background: rgba(13,17,23,.65);
+      border: 1px solid #2a3240;
+      border-radius: 6px;
+      padding: 6px 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="layout">
+    <aside id="controls">
+      <h1>Interactive Pythagoras Visualizer</h1>
+      <p>Move sliders to update the geometry immediately. The scene draws the right triangle plus square prisms on sides <b>a</b>, <b>b</b>, and <b>c</b>.</p>
+
+      <div class="row">
+        <label for="a">Side a <span id="aVal">6.0</span></label>
+        <input id="a" type="range" min="1" max="16" step="0.1" value="6" />
+      </div>
+
+      <div class="row">
+        <label for="b">Side b <span id="bVal">8.0</span></label>
+        <input id="b" type="range" min="1" max="16" step="0.1" value="8" />
+      </div>
+
+      <div class="row">
+        <label for="h">Prism depth <span id="hVal">2.0</span></label>
+        <input id="h" type="range" min="0.5" max="6" step="0.1" value="2" />
+      </div>
+
+      <div class="row">
+        <label for="scale">View scale <span id="scaleVal">28</span></label>
+        <input id="scale" type="range" min="12" max="50" step="1" value="28" />
+      </div>
+
+      <div class="stats">
+        <div id="vals"></div>
+        <div class="formula" id="formula"></div>
+        <div id="check"></div>
+        <div class="legend">
+          <span class="chip"><span class="sw" style="background:var(--a)"></span>a² prism</span>
+          <span class="chip"><span class="sw" style="background:var(--b)"></span>b² prism</span>
+          <span class="chip"><span class="sw" style="background:var(--c)"></span>c² prism</span>
+          <span class="chip"><span class="sw" style="background:var(--tri)"></span>triangle</span>
+        </div>
+      </div>
+    </aside>
+
+    <section id="viewWrap">
+      <canvas id="view"></canvas>
+      <div id="hint">Live-updating scene from slider values</div>
+    </section>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('view');
+    const ctx = canvas.getContext('2d');
+
+    const state = {
+      a: 6,
+      b: 8,
+      h: 2,
+      scale: 28
+    };
+
+    const ui = {
+      a: document.getElementById('a'),
+      b: document.getElementById('b'),
+      h: document.getElementById('h'),
+      scale: document.getElementById('scale'),
+      aVal: document.getElementById('aVal'),
+      bVal: document.getElementById('bVal'),
+      hVal: document.getElementById('hVal'),
+      scaleVal: document.getElementById('scaleVal'),
+      vals: document.getElementById('vals'),
+      formula: document.getElementById('formula'),
+      check: document.getElementById('check')
+    };
+
+    function resize() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw();
+    }
+
+    function worldToScreen(x, y) {
+      const cx = canvas.clientWidth * 0.56;
+      const cy = canvas.clientHeight * 0.68;
+      return [cx + x * state.scale, cy - y * state.scale];
+    }
+
+    function drawPolyline(points, stroke, fill = null, lineWidth = 2) {
+      if (points.length < 2) return;
+      ctx.beginPath();
+      ctx.moveTo(points[0][0], points[0][1]);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+      ctx.closePath();
+      if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fill();
+      }
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = lineWidth;
+      ctx.stroke();
+    }
+
+    function drawPrism(basePoints, depth, color) {
+      const offset = [depth * state.scale * 0.55, -depth * state.scale * 0.55];
+      const top = basePoints.map(([x, y]) => [x + offset[0], y + offset[1]]);
+
+      for (let i = 0; i < basePoints.length; i++) {
+        const j = (i + 1) % basePoints.length;
+        drawPolyline([basePoints[i], basePoints[j], top[j], top[i]], '#0b0f14', color + '66', 1.3);
+      }
+      drawPolyline(basePoints, '#0b0f14', color + '99', 1.6);
+      drawPolyline(top, '#0b0f14', color + '44', 1.2);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+      const a = state.a;
+      const b = state.b;
+      const c = Math.hypot(a, b);
+
+      const A = worldToScreen(0, 0);
+      const B = worldToScreen(a, 0);
+      const C = worldToScreen(0, b);
+
+      // square on AB (side a)
+      const sqA = [
+        A,
+        B,
+        worldToScreen(a, -a),
+        worldToScreen(0, -a)
+      ];
+
+      // square on AC (side b)
+      const sqB = [
+        A,
+        C,
+        worldToScreen(-b, b),
+        worldToScreen(-b, 0)
+      ];
+
+      // square on BC (side c), outward normal
+      const BC = [C[0] - B[0], C[1] - B[1]];
+      const len = Math.hypot(BC[0], BC[1]);
+      const nx = BC[1] / len;
+      const ny = -BC[0] / len;
+      const p1 = B;
+      const p2 = C;
+      const p3 = [C[0] + nx * (c * state.scale), C[1] + ny * (c * state.scale)];
+      const p4 = [B[0] + nx * (c * state.scale), B[1] + ny * (c * state.scale)];
+      const sqC = [p1, p2, p3, p4];
+
+      drawPrism(sqA, state.h, '#4ea1ff');
+      drawPrism(sqB, state.h, '#67d3b2');
+      drawPrism(sqC, state.h, '#f8c14a');
+
+      drawPolyline([A, B, C], '#ffd4e8', 'rgba(255,126,182,0.35)', 2.3);
+
+      // right-angle marker near A
+      const m = 0.55;
+      const r1 = worldToScreen(m, 0);
+      const r2 = worldToScreen(m, m);
+      const r3 = worldToScreen(0, m);
+      ctx.beginPath();
+      ctx.moveTo(r1[0], r1[1]);
+      ctx.lineTo(r2[0], r2[1]);
+      ctx.lineTo(r3[0], r3[1]);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+
+      // labels
+      ctx.fillStyle = '#e6edf3';
+      ctx.font = '600 14px Segoe UI, Arial';
+      ctx.fillText('a', (A[0] + B[0]) / 2 - 6, (A[1] + B[1]) / 2 + 18);
+      ctx.fillText('b', (A[0] + C[0]) / 2 - 18, (A[1] + C[1]) / 2);
+      ctx.fillText('c', (B[0] + C[0]) / 2 + 8, (B[1] + C[1]) / 2 - 6);
+
+      const a2 = a * a;
+      const b2 = b * b;
+      const c2 = c * c;
+      const err = Math.abs(a2 + b2 - c2);
+
+      ui.vals.textContent = `a = ${a.toFixed(2)}, b = ${b.toFixed(2)}, c = ${c.toFixed(4)}, prism depth = ${state.h.toFixed(2)}`;
+      ui.formula.textContent = `${a2.toFixed(4)} + ${b2.toFixed(4)} = ${(a2 + b2).toFixed(4)}  |  c² = ${c2.toFixed(4)}`;
+      ui.check.textContent = err < 1e-9 ? '✓ a² + b² = c² verified.' : `Numeric error: ${err.toExponential(2)}`;
+    }
+
+    function onInput() {
+      state.a = Number(ui.a.value);
+      state.b = Number(ui.b.value);
+      state.h = Number(ui.h.value);
+      state.scale = Number(ui.scale.value);
+
+      ui.aVal.textContent = state.a.toFixed(1);
+      ui.bVal.textContent = state.b.toFixed(1);
+      ui.hVal.textContent = state.h.toFixed(1);
+      ui.scaleVal.textContent = String(state.scale);
+
+      draw();
+    }
+
+    ui.a.addEventListener('input', onInput);
+    ui.b.addEventListener('input', onInput);
+    ui.h.addEventListener('input', onInput);
+    ui.scale.addEventListener('input', onInput);
+
+    window.addEventListener('resize', resize);
+    onInput();
+    resize();
+  </script>
+</body>
+</html>
